@@ -1,0 +1,84 @@
+workspace:
+  base: /go
+  path: src/github.com/kontena/service-lb-operator
+
+
+pipeline:
+  build:
+    image: golang:1.11
+    commands:
+      - mkdir -p /go/bin
+      - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      - dep ensure -vendor-only
+      # Uncomment below when there's something to test :D
+      #- ./test.sh
+      - ./build.sh
+
+  release:
+    image: plugins/github-release
+    secrets: [github_token]
+    files:
+      - output/*
+    draft: true # Add changelog and publish manually
+    checksum:
+      - sha256
+    when:
+      event: tag
+
+  # build and deploy quay.io/kontena/service-lb-operator-amd64:edge from master branch
+  docker-edge-amd64:
+    group: docker
+    registry: quay.io
+    image: plugins/docker
+    dockerfile: Dockerfile
+    build_args:
+      - ARCH=amd64
+    secrets: [ docker_username, docker_password ]
+    repo: quay.io/kontena/service-lb-operator-amd64
+    tags: edge
+    when:
+      event: push
+      branch: master
+
+  # build and deploy quay.io/kontena/service-lb-operator-arm64:edge from master branch
+  docker-edge-arm64:
+    group: docker
+    registry: quay.io
+    image: plugins/docker
+    dockerfile: Dockerfile
+    build_args:
+      - ARCH=arm64
+    secrets: [ docker_username, docker_password ]
+    repo: quay.io/kontena/service-lb-operator-arm64
+    tags: edge
+    when:
+      event: push
+      branch: master
+
+  # build and deploy quay.io/kontena/service-lb-operator-amd64:<tag> from  tags
+  docker-amd64:
+    group: docker
+    registry: quay.io
+    image: plugins/docker
+    dockerfile: Dockerfile
+    build_args:
+      - ARCH=amd64
+    secrets: [ docker_username, docker_password ]
+    repo: quay.io/kontena/service-lb-operator-amd64
+    auto_tag: true
+    when:
+      event: tag
+
+  # build and deploy quay.io/kontena/service-lb-operator-arm64:<tag> from tags
+  docker-arm64:
+    group: docker
+    registry: quay.io
+    image: plugins/docker
+    dockerfile: Dockerfile
+    build_args:
+      - ARCH=arm64
+    secrets: [ docker_username, docker_password ]
+    repo: quay.io/kontena/service-lb-operator-arm64
+    auto_tag: true
+    when:
+      event: tag
