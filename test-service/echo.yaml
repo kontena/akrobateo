@@ -1,0 +1,36 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echoserver
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: echoserver
+    spec:
+      containers:
+      - image: gcr.io/google_containers/echoserver:1.0
+        imagePullPolicy: Always
+        name: echoserver
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echoserver
+spec:
+  type: LoadBalancer
+  ports:
+  - name: echo
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: echo2
+    port: 9090
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: echoserver

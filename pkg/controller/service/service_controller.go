@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"reflect"
 	"sort"
@@ -30,8 +31,9 @@ var (
 )
 
 const (
-	lbImage      = "docker.io/rancher/klipper-lb:v0.1.1"
-	svcNameLabel = "servicelb.kontena.io/svcname"
+	lbImage           = "docker.io/rancher/klipper-lb:v0.1.1"
+	svcNameLabel      = "servicelb.kontena.io/svcname"
+	svcHashAnnotation = "servicelb.kontena.io/svchash"
 )
 
 // Add creates a new Service Controller and adds it to the Manager. The Manager will set fields on the Controller
@@ -60,6 +62,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to secondary resource and requeue the owner Service
+	// Changes in secondary resource(s) trigger reconcile for the original (owner) service
+	// From that event we can go and update the service IPs etc.
 	err = c.Watch(&source.Kind{Type: &appsv1.DaemonSet{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &corev1.Service{},
@@ -111,7 +115,7 @@ func (r *ReconcileService) Reconcile(request reconcile.Request) (reconcile.Resul
 		return reconcile.Result{}, nil
 	}
 
-	// Define a new Pod object
+	// Generate the needed DS for the service
 	ds := newDaemonSetForService(svc)
 
 	// Set Service instance as the owner and controller
@@ -133,6 +137,18 @@ func (r *ReconcileService) Reconcile(request reconcile.Request) (reconcile.Resul
 		return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
+	}
+
+	if found.Annotations[svcHashAnnotation] != serviceHash(svc) {
+		// Need to update the DS
+		reqLogger.Info("Updating DS", "DS.Namespace", ds.Namespace, "DS.Name", ds.Name)
+		err = r.client.Update(context.TODO(), ds)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+		// DaemonSet updated successfully - don't requeue
+		// Changes in the DS will trigger proper requests for this as the DS rollout progresses
+		return reconcile.Result{}, nil
 	}
 
 	// DS already exists - don't requeue but sync up the addresses for the service
@@ -164,6 +180,10 @@ func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
 					UID:        svc.UID,
 					Controller: &trueVal,
 				},
+			},
+			Annotations: map[string]string{
+				// Used to trigger DS update if the service spec changes
+				svcHashAnnotation: serviceHash(svc),
 			},
 		},
 		TypeMeta: metav1.TypeMeta{
@@ -206,6 +226,7 @@ func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
 		},
 	}
 
+	// Create a container per exposed port
 	for i, port := range svc.Spec.Ports {
 		portName := port.Name
 		if portName == "" {
@@ -292,4 +313,17 @@ func (r *ReconcileService) getNode(name string) (*corev1.Node, error) {
 		return nil, err
 	}
 	return node, nil
+}
+
+// Calculates the "checksum" for the services spec part.
+// This is used to track update need for the created daemonset.
+func serviceHash(svc *corev1.Service) string {
+	d, err := svc.Spec.Marshal()
+	if err != nil {
+		return ""
+	}
+
+	checksum := fmt.Sprintf("%x", md5.Sum(d))
+
+	return checksum
 }
