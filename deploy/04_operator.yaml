@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-lb-operator
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: service-lb-operator
+  template:
+    metadata:
+      labels:
+        name: service-lb-operator
+    spec:
+      serviceAccountName: service-lb-operator
+      containers:
+        - name: service-lb-operator
+          image: quay.io/kontena/service-lb-operator-amd64:edge
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 20M
+              cpu: 100m
+            limits:
+              memory: 100M
+              cpu: 200m
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "service-lb-operator"
