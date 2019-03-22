@@ -1,6 +1,18 @@
 # Service LB Operator
 
-Simple operator to spin-up [klippy-lb]() DaemonSets and sync the addresses for the services.
+Simple [Kubernetes](https://kubernetes.io/) [operator](https://github.com/operator-framework/operator-sdk) to expose in-cluster `LoadBalancer` services as node ports using DaemonSets. The operator naturally also syncs the addresses for the services. This essentially makes the `LoadBalancer` type services behave pretty much like `NodePort` services. The drawback with `NodePort` services is that we're not able to use additional components such as [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) and others.
+
+The node-port proxy Pods utilize iptables to do the actual forwarding.
+
+## Inspiration
+
+This operator draws heavy inspiration from [K3S](https://github.com/rancher/k3s) `servicelb` controller: https://github.com/rancher/k3s/blob/master/pkg/servicelb/controller.go
+
+As K3S controller is fully and tightly integrated into K3S, with good reasons, we thought we'd separate the concept into generic operator usable in any Kubernetes cluster.
+
+## Why `DaemonSet`s?
+
+Running the "proxies" as `DaemonSet`s makes the proxy not to be a single-point-of-failure. So once you've exposed the service you can safaly e.g. push the services external addresses into your DNS. This does have the drawback that a given port can be exposed only in one service throughout the cluster.
 
 ## Building
 
@@ -15,18 +27,13 @@ operator-sdk up local
 
 Or use the locally built binary:
 ```sh
-WATCH_NAMESPACE="default" ./output/manager_darwin_amd64
+WATCH_NAMESPACE="default" ./output/service-lb-operator_darwin_amd64
 ```
 
 ## Deploying
 
 To deploy to live cluster, use manifests in `deploy` directory. It sets up the operator in `kube-system` namespace with proper service-account and RBAC to allow only needed resources.
 
-## TODO items
-
-- test with multiple services ports
-- test when updating the service
-- docs needed
 
 ## Future
 
@@ -38,4 +45,4 @@ The original Klippy controller creates Deployments. Maybe user could put some an
 
 ### Node selection
 
-There should be some way for the user to select which nodes should act as LBs. So something like a node selector is needed on the services as annotation. That probably also means we'd need to support also tolerations
+There should be some way for the user to select which nodes should act as LBs. So something like a node selector is needed on the services as annotation. That probably also means we'd need to support also tolerations.
