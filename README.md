@@ -1,8 +1,8 @@
-# Service LB Operator
+# Akrobateo
 
-Simple [Kubernetes](https://kubernetes.io/) [operator](https://github.com/operator-framework/operator-sdk) to expose in-cluster `LoadBalancer` services as node ports using DaemonSets. The operator naturally also syncs the addresses for the services. This essentially makes the `LoadBalancer` type services behave pretty much like `NodePort` services. The drawback with `NodePort` services is that we're not able to use additional components such as [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) and others.
+Akrobateo is a simple [Kubernetes](https://kubernetes.io/) [operator](https://github.com/operator-framework/operator-sdk) to expose in-cluster `LoadBalancer` services as node ports using `DaemonSet`s. The operator naturally also syncs the addresses for the services. This essentially makes the `LoadBalancer` type services behave pretty much like `NodePort` services. The drawback with `NodePort` services is that we're not able to use additional components such as [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) and others.
 
-The node-port proxy Pods utilize iptables to do the actual forwarding.
+The node-port proxy Pods utilize iptables to do the actual traffic forwarding.
 
 ## Inspiration
 
