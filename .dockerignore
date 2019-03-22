@@ -1,5 +1,6 @@
 output/
 manifests/
+deploy/
 vendor/
 build/
 .dockerignore

@@ -27,7 +27,7 @@ operator-sdk up local
 
 Or use the locally built binary:
 ```sh
-WATCH_NAMESPACE="default" ./output/service-lb-operator_darwin_amd64
+WATCH_NAMESPACE="default" ./output/akrobateo_darwin_amd64
 ```
 
 ## Deploying

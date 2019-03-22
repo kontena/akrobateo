@@ -1,6 +1,6 @@
 workspace:
   base: /go
-  path: src/github.com/kontena/service-lb-operator
+  path: src/github.com/kontena/akrobateo
 
 
 pipeline:
@@ -25,7 +25,7 @@ pipeline:
     when:
       event: tag
 
-  # build and deploy quay.io/kontena/service-lb-operator-amd64:edge from master branch
+  # build and deploy quay.io/kontena/akrobateo-amd64:edge from master branch
   docker-edge-amd64:
     group: docker
     registry: quay.io
@@ -34,13 +34,13 @@ pipeline:
     build_args:
       - ARCH=amd64
     secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/service-lb-operator-amd64
+    repo: quay.io/kontena/akrobateo-amd64
     tags: edge
     when:
       event: push
       branch: master
 
-  # build and deploy quay.io/kontena/service-lb-operator-arm64:edge from master branch
+  # build and deploy quay.io/kontena/akrobateo-arm64:edge from master branch
   docker-edge-arm64:
     group: docker
     registry: quay.io
@@ -49,13 +49,13 @@ pipeline:
     build_args:
       - ARCH=arm64
     secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/service-lb-operator-arm64
+    repo: quay.io/kontena/akrobateo-arm64
     tags: edge
     when:
       event: push
       branch: master
 
-  # build and deploy quay.io/kontena/service-lb-operator-amd64:<tag> from  tags
+  # build and deploy quay.io/kontena/akrobateo-amd64:<tag> from  tags
   docker-amd64:
     group: docker
     registry: quay.io
@@ -64,12 +64,12 @@ pipeline:
     build_args:
       - ARCH=amd64
     secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/service-lb-operator-amd64
+    repo: quay.io/kontena/akrobateo-amd64
     auto_tag: true
     when:
       event: tag
 
-  # build and deploy quay.io/kontena/service-lb-operator-arm64:<tag> from tags
+  # build and deploy quay.io/kontena/akrobateo-arm64:<tag> from tags
   docker-arm64:
     group: docker
     registry: quay.io
@@ -78,7 +78,7 @@ pipeline:
     build_args:
       - ARCH=arm64
     secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/service-lb-operator-arm64
+    repo: quay.io/kontena/akrobateo-arm64
     auto_tag: true
     when:
       event: tag

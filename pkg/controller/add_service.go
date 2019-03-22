@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/kontena/service-lb-operator/pkg/controller/service"
+	"github.com/kontena/akrobateo/pkg/controller/service"
 )
 
 func init() {

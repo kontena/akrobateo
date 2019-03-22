@@ -7,8 +7,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/kontena/service-lb-operator/pkg/apis"
-	"github.com/kontena/service-lb-operator/pkg/controller"
+	"github.com/kontena/akrobateo/pkg/apis"
+	"github.com/kontena/akrobateo/pkg/controller"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
@@ -75,7 +75,7 @@ func main() {
 	ctx := context.TODO()
 
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "service-lb-operator-lock")
+	err = leader.Become(ctx, "akrobateo-lock")
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
