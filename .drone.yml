@@ -1,84 +1,106 @@
+kind: pipeline
+name: main
+
+platform:
+  os: linux
+  arch: amd64
+
 workspace:
   base: /go
   path: src/github.com/kontena/akrobateo
 
-
-pipeline:
-  build:
+steps:
+  - name: build
     image: golang:1.11
     commands:
       - mkdir -p /go/bin
       - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      - dep ensure -vendor-only
+      - dep ensure -v -vendor-only
       # Uncomment below when there's something to test :D
       #- ./test.sh
       - ./build.sh
 
-  release:
+  - name: release
     image: plugins/github-release
-    secrets: [github_token]
-    files:
-      - output/*
-    draft: true # Add changelog and publish manually
-    checksum:
-      - sha256
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - output/*
+      draft: true # Add changelog and publish manually
+      checksum:
+        - sha256
     when:
       event: tag
 
-  # build and deploy quay.io/kontena/akrobateo-amd64:edge from master branch
-  docker-edge-amd64:
+  # build and deploy quay.io/kontena/akrobateo-amd64:<tag>
+  - name: docker-amd64
     group: docker
-    registry: quay.io
     image: plugins/docker
-    dockerfile: Dockerfile
-    build_args:
-      - ARCH=amd64
-    secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/akrobateo-amd64
-    tags: edge
-    when:
-      event: push
-      branch: master
+    settings:
+      registry: quay.io
+      dockerfile: Dockerfile
+      build_args:
+        - ARCH=amd64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: quay.io/kontena/akrobateo-amd64
+      auto_tag: true
 
-  # build and deploy quay.io/kontena/akrobateo-arm64:edge from master branch
-  docker-edge-arm64:
+  # build and deploy quay.io/kontena/akrobateo-arm64:<tag>
+  - name: docker-arm64
     group: docker
-    registry: quay.io
     image: plugins/docker
-    dockerfile: Dockerfile
-    build_args:
-      - ARCH=arm64
-    secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/akrobateo-arm64
-    tags: edge
-    when:
-      event: push
-      branch: master
+    settings:
+      registry: quay.io
+      dockerfile: Dockerfile
+      build_args:
+        - ARCH=arm64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: quay.io/kontena/akrobateo-arm64
+      auto_tag: true
 
-  # build and deploy quay.io/kontena/akrobateo-amd64:<tag> from  tags
-  docker-amd64:
+  # Build the LB image for amd64
+  - name: docker-lb-amd64
     group: docker
-    registry: quay.io
     image: plugins/docker
-    dockerfile: Dockerfile
-    build_args:
-      - ARCH=amd64
-    secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/akrobateo-amd64
-    auto_tag: true
-    when:
-      event: tag
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      registry: quay.io
+      dockerfile: lb-image/Dockerfile
+      context: lb-image/
+      repo: quay.io/kontena/akrobateo-lb-amd64
+      auto_tag: true
 
-  # build and deploy quay.io/kontena/akrobateo-arm64:<tag> from tags
-  docker-arm64:
+---
+kind: pipeline
+name: lb-arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+  # Build the LB image for arm64
+  - name: docker-lb-arm64
     group: docker
-    registry: quay.io
     image: plugins/docker
-    dockerfile: Dockerfile
-    build_args:
-      - ARCH=arm64
-    secrets: [ docker_username, docker_password ]
-    repo: quay.io/kontena/akrobateo-arm64
-    auto_tag: true
-    when:
-      event: tag
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      registry: quay.io
+      dockerfile: lb-image/Dockerfile
+      context: lb-image/
+      repo: quay.io/kontena/akrobateo-lb-arm64
+      auto_tag: true
+
