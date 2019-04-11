@@ -4,10 +4,12 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
 
+	"github.com/kontena/akrobateo/version"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -31,7 +33,6 @@ var (
 )
 
 const (
-	lbImage           = "docker.io/rancher/klipper-lb:v0.1.1"
 	svcNameLabel      = "servicelb.kontena.io/svcname"
 	svcHashAnnotation = "servicelb.kontena.io/svchash"
 )
@@ -207,7 +208,7 @@ func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
 					InitContainers: []corev1.Container{
 						corev1.Container{
 							Name:  "sysctl",
-							Image: lbImage,
+							Image: getLbImage(),
 							Command: []string{
 								"sh",
 								"-c",
@@ -234,7 +235,7 @@ func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
 		}
 		container := corev1.Container{
 			Name:            portName,
-			Image:           lbImage,
+			Image:           getLbImage(),
 			ImagePullPolicy: corev1.PullIfNotPresent,
 			Ports: []corev1.ContainerPort{
 				{
@@ -326,4 +327,13 @@ func serviceHash(svc *corev1.Service) string {
 	checksum := fmt.Sprintf("%x", md5.Sum(d))
 
 	return checksum
+}
+
+func getLbImage() string {
+	image := os.Getenv("LB_IMAGE")
+	if image == "" {
+		image = fmt.Sprintf("docker.io/kontenapharos/akrobateo-lb:%s", version.Version)
+	}
+
+	return image
 }

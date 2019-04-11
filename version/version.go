@@ -1,5 +1,6 @@
 package version
 
 var (
-	Version = "0.0.1"
+	// This gets set to tagged release version via build system
+	Version = "latest"
 )

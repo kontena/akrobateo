@@ -18,6 +18,8 @@ Running the "proxies" as `DaemonSet`s makes the proxy not to be a single-point-o
 
 Use the included `build.sh` script. There's naturally also a `Dockerfile` for putting everything into an image.
 
+Build automation takes care of building all the release artifacts. So just create a tag for the release and everything will be build. The current build also produces multiarch images for both the operator and the LB image itself.
+
 ## Running locally
 
 Either use operator-sdk to run it like so:
@@ -30,10 +32,11 @@ Or use the locally built binary:
 WATCH_NAMESPACE="default" ./output/akrobateo_darwin_amd64
 ```
 
+`LB_IMAGE` env variable can be set to define a custom LB image to be used.
+
 ## Deploying
 
-To deploy to live cluster, use manifests in `deploy` directory. It sets up the operator in `kube-system` namespace with proper service-account and RBAC to allow only needed resources.
-
+To deploy to live cluster, use manifests in `deploy` directory. It sets up the operator in `kube-system` namespace with proper service-account and RBAC to allow access to only needed resources.
 
 ## Future
 
@@ -41,7 +44,7 @@ Some ideas how to make things more configurable and/or future-proof
 
 ### DaemonSet vs. Deployment
 
-The original Klippy controller creates Deployments. Maybe user could put some annotation on the service whether he/she wants a deployment or a daemonset created. Not really sure how operator-sdk will handle the downstream objects if we create multiple kinds...
+The original Klippy controller creates Deployments. Maybe user could put some annotation on the service whether he/she wants a deployment or a daemonset created. Operator SDK _SHOULD_ be able to handle the different kinds of objects as long as there's proper owner references set.
 
 ### Node selection
 

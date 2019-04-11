@@ -84,6 +84,9 @@ steps:
 kind: pipeline
 name: lb-arm64
 
+depends_on:
+- main
+
 platform:
   os: linux
   arch: arm64
@@ -104,3 +107,18 @@ steps:
       repo: quay.io/kontena/akrobateo-lb-arm64
       auto_tag: true
 
+---
+kind: pipeline
+name: multi-arch-images
+
+depends_on:
+- lb-arm64
+
+steps:
+- name: multi-arch-images
+  image: docker.io/kontenapharos/skopeo:latest
+  environment:
+    DOCKER_CREDS:
+      from_secret: docker_creds
+  when:
+    event: tag
