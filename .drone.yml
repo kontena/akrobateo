@@ -120,5 +120,8 @@ steps:
   environment:
     DOCKER_CREDS:
       from_secret: docker_creds
+  commands:
+    - ./multiarch.sh
   when:
-    event: tag
+    event: ["push"]
+    branch: ['master', 'refs/tags/*']

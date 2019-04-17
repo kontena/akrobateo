@@ -16,7 +16,7 @@ spec:
       serviceAccountName: akrobateo
       containers:
         - name: akrobateo
-          image: quay.io/kontena/akrobateo-amd64:edge
+          image: registry.pharos.sh/kontenapharos/akrobateo:latest
           imagePullPolicy: Always
           resources:
             requests:

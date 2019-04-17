@@ -3,7 +3,7 @@
 # To easily cross-compile binaries
 go get github.com/mitchellh/gox
 
-VERSION=${DRONE_TAG:-head}
+VERSION=${DRONE_TAG:-latest}
 GIT_COMMIT=$(git rev-list -1 HEAD || echo 'dirrrty')
 
 CGO_ENABLED=0 gox -output="output/akrobateo_{{.OS}}_{{.Arch}}" \

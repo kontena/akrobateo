@@ -332,7 +332,7 @@ func serviceHash(svc *corev1.Service) string {
 func getLbImage() string {
 	image := os.Getenv("LB_IMAGE")
 	if image == "" {
-		image = fmt.Sprintf("docker.io/kontenapharos/akrobateo-lb:%s", version.Version)
+		image = fmt.Sprintf("registry.pharos.sh/kontenapharos/akrobateo-lb:%s", version.Version)
 	}
 
 	return image
