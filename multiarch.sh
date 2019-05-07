@@ -5,6 +5,9 @@ set -ue
 SRC_REPO="docker://quay.io/kontena"
 DST_REPO="docker://docker.io/kontenapharos"
 
+# This script is only invoked in CI on tag and master push
+TAG=${DRONE_TAG:-"latest"}
+
 create_list() {
     local image=$1
     local version=$2
@@ -18,15 +21,15 @@ create_list() {
 archs=(amd64 arm64)
 for ARCH in "${archs[@]}"
 do
-    image="akrobateo-lb-${ARCH}:${DRONE_TAG}"
+    image="akrobateo-lb-${ARCH}:${TAG}"
     echo "Starting to sync image ${image} ..."
     skopeo --override-arch=${ARCH} copy --dest-creds="${DOCKER_CREDS}" "${SRC_REPO}/${image}" "${DST_REPO}/${image}"
 
-    image="akrobateo-${ARCH}:${DRONE_TAG}"
+    image="akrobateo-${ARCH}:${TAG}"
     skopeo --override-arch=${ARCH} copy --dest-creds="${DOCKER_CREDS}" "${SRC_REPO}/${image}" "${DST_REPO}/${image}"
 done
 
 
 platforms="linux/amd64,linux/arm64"
-create_list "akrobateo-lb" "${DRONE_TAG}" $platforms
-create_list "akrobateo" "${DRONE_TAG}" $platforms
+create_list "akrobateo-lb" "${TAG}" $platforms
+create_list "akrobateo" "${TAG}" $platforms

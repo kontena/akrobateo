@@ -123,5 +123,6 @@ steps:
   commands:
     - ./multiarch.sh
   when:
-    event: ["push"]
-    branch: ['master', 'refs/tags/*']
+    ref:
+    - refs/heads/master
+    - refs/tags/*
