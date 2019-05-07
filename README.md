@@ -1,6 +1,6 @@
 # Akrobateo
 
-Akrobateo is a simple [Kubernetes](https://kubernetes.io/) [operator](https://github.com/operator-framework/operator-sdk) to expose in-cluster `LoadBalancer` services as node ports using `DaemonSet`s. The operator naturally also syncs the addresses for the services. This essentially makes the `LoadBalancer` type services behave pretty much like `NodePort` services. The drawback with `NodePort` services is that we're not able to use additional components such as [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) and others.
+Akrobateo is a simple [Kubernetes](https://kubernetes.io/) [operator](https://github.com/operator-framework/operator-sdk) to expose in-cluster `LoadBalancer` services as node `hostPort`s using `DaemonSet`s. The operator naturally also syncs the addresses for the services. This essentially makes the `LoadBalancer` type services behave pretty much like `NodePort` services. The drawback with `NodePort` services is that we're not able to use additional components such as [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) and others.
 
 The node-port proxy Pods utilize iptables to do the actual traffic forwarding.
 
@@ -12,7 +12,7 @@ As K3S controller is fully and tightly integrated into K3S, with good reasons, w
 
 ## Why `DaemonSet`s?
 
-Running the "proxies" as `DaemonSet`s makes the proxy not to be a single-point-of-failure. So once you've exposed the service you can safaly e.g. push the services external addresses into your DNS. This does have the drawback that a given port can be exposed only in one service throughout the cluster.
+Running the "proxies" as `DaemonSet`s makes the proxy not to be a single-point-of-failure. So once you've exposed the service you can safely e.g. push the services external addresses into your DNS. This does have the drawback that a given port can be exposed only in one service throughout the cluster.
 
 ## Building
 
