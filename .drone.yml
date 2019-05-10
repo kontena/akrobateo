@@ -16,8 +16,6 @@ steps:
       - mkdir -p /go/bin
       - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
       - dep ensure -v -vendor-only
-      # Uncomment below when there's something to test :D
-      #- ./test.sh
       - ./build.sh
 
   - name: release

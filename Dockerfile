@@ -11,7 +11,9 @@ RUN dep ensure -v -vendor-only
 # Add source and compile
 ADD . /go/src/github.com/kontena/akrobateo/
 
-RUN ./build.sh
+ARG ARCH=amd64
+
+RUN ./build.sh "linux/${ARCH}"
 
 FROM scratch
 
