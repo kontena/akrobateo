@@ -7,6 +7,7 @@ DST_REPO="docker://docker.io/kontenapharos"
 
 # This script is only invoked in CI on tag and master push
 TAG=${DRONE_TAG:-"latest"}
+TAG=${TAG#v}
 
 create_list() {
     local image=$1
