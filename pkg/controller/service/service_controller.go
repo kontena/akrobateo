@@ -255,7 +255,7 @@ func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
 				},
 				{
 					Name:  "DEST_PORT",
-					Value: port.TargetPort.String(),
+					Value: strconv.Itoa(int(port.Port)),
 				},
 				{
 					Name:  "DEST_IP",
