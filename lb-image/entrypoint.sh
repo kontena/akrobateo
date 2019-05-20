@@ -5,6 +5,7 @@ trap exit TERM INT
 
 # Validate that we can operate
 if [ `cat /proc/sys/net/ipv4/ip_forward` != 1 ]; then
+    echo "ip_forward is not enabled"
     exit 1
 fi
 
