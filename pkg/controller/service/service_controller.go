@@ -26,15 +26,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-var log = logf.Log.WithName("service-lb-controller")
+var log = logf.Log.WithName("akrobateo-controller")
 
 var (
 	trueVal = true
 )
 
 const (
-	svcNameLabel      = "servicelb.kontena.io/svcname"
-	svcHashAnnotation = "servicelb.kontena.io/svchash"
+	svcNameLabel      = "akrobateo.kontena.io/svcname"
+	svcHashAnnotation = "akrobateo.kontena.io/svchash"
 )
 
 // Add creates a new Service Controller and adds it to the Manager. The Manager will set fields on the Controller
@@ -163,7 +163,7 @@ func (r *ReconcileService) Reconcile(request reconcile.Request) (reconcile.Resul
 }
 
 func getDSName(svc *corev1.Service) string {
-	return fmt.Sprintf("service-lb-%s", svc.Name)
+	return fmt.Sprintf("akrobateo-%s", svc.Name)
 }
 
 func newDaemonSetForService(svc *corev1.Service) *appsv1.DaemonSet {
