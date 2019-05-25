@@ -21,4 +21,5 @@ echo "Forwarding set up succesfully, taking Cinderella nap..."
 if [ ! -e /tmp/pause ]; then
     mkfifo /tmp/pause
 fi
-</tmp/pause
+</tmp/pause &
+wait $!
