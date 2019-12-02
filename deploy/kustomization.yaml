@@ -1,0 +1,5 @@
+resources:
+- 01_role.yaml
+- 02_service_account.yaml
+- 03_role_binding.yaml
+- 04_operator.yaml
